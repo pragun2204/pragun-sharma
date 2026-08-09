@@ -83,7 +83,7 @@ export default function Interactive3DCharacter({ onOpenChat }) {
         <img
           src={avatarImage}
           alt="Pragun 3D interactive character avatar"
-          className="w-full aspect-square object-cover object-center"
+          className="w-full aspect-[2/3] object-cover object-center"
         />
 
         <div className="absolute inset-0 pointer-events-none z-20">
@@ -93,9 +93,9 @@ export default function Interactive3DCharacter({ onOpenChat }) {
               className="absolute overflow-hidden"
               style={{
                 left: eye.left,
-                top: '20%',
+                top: '28%',
                 width: '12%',
-                height: '10.5%',
+                height: '7%',
                 WebkitMaskImage: 'radial-gradient(ellipse at center, black 48%, transparent 74%)',
                 maskImage: 'radial-gradient(ellipse at center, black 48%, transparent 74%)',
               }}
@@ -111,7 +111,7 @@ export default function Interactive3DCharacter({ onOpenChat }) {
                   height: '1428.571%',
                   maxWidth: 'none',
                   left: eye.imageLeft,
-                  top: '-428.571%',
+                  top: '-400%',
                   transform: `translate(${gaze.x}px, ${gaze.y}px)`,
                 }}
               />
