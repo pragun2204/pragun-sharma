@@ -1,0 +1,16 @@
+# Dependencies are installed by each build environment.
+node_modules/
+
+# Generated application output.
+dist/
+
+# Local configuration and logs.
+.env
+.env.local
+.env.*.local
+*.log
+
+# Python runtime files.
+backend/data/
+backend/__pycache__/
+*.py[cod]
