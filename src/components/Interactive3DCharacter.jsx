@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { MessageCircle, Sparkles } from 'lucide-react';
 
-const avatarImage = '/assets/pragun-developer-avatar.png';
+const avatarImage = '/assets/pragun-square-avatar.png';
 
 // These windows replay the matching eye regions from the avatar image. Moving them
 // slightly lets the character's actual pupils follow the pointer without adding
 // separate artificial eyes over the face.
 const eyeWindows = [
-  { id: 'left', left: '38%', imageLeft: '-316.667%' },
-  { id: 'right', left: '56%', imageLeft: '-466.667%' },
+  { id: 'left', left: '38.3%', imageLeft: '-319.167%' },
+  { id: 'right', left: '48.7%', imageLeft: '-405.833%' },
 ];
 
 export default function Interactive3DCharacter({ onOpenChat }) {
@@ -83,7 +83,7 @@ export default function Interactive3DCharacter({ onOpenChat }) {
         <img
           src={avatarImage}
           alt="Pragun 3D interactive character avatar"
-          className="w-full aspect-[2/3] object-cover object-center"
+          className="w-full aspect-square object-cover object-center"
         />
 
         <div className="absolute inset-0 pointer-events-none z-20">
@@ -93,9 +93,9 @@ export default function Interactive3DCharacter({ onOpenChat }) {
               className="absolute overflow-hidden"
               style={{
                 left: eye.left,
-                top: '28%',
+                top: '20%',
                 width: '12%',
-                height: '7%',
+                height: '10.5%',
                 WebkitMaskImage: 'radial-gradient(ellipse at center, black 48%, transparent 74%)',
                 maskImage: 'radial-gradient(ellipse at center, black 48%, transparent 74%)',
               }}
@@ -108,10 +108,10 @@ export default function Interactive3DCharacter({ onOpenChat }) {
                 className="absolute max-w-none transition-transform duration-100 ease-out"
                 style={{
                   width: '833.333%',
-                  height: '1428.571%',
+                  height: '952.381%',
                   maxWidth: 'none',
                   left: eye.imageLeft,
-                  top: '-400%',
+                  top: '-190.476%',
                   transform: `translate(${gaze.x}px, ${gaze.y}px)`,
                 }}
               />
