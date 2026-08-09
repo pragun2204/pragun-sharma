@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { MessageCircle, Sparkles } from 'lucide-react';
 
-const avatarImage = '/assets/pragun_3d_cartoon-clean.png';
+const avatarImage = '/assets/pragun-developer-avatar.png';
 
 // These windows replay the matching eye regions from the avatar image. Moving them
 // slightly lets the character's actual pupils follow the pointer without adding
 // separate artificial eyes over the face.
 const eyeWindows = [
-  { id: 'left', left: '37.2%', imageLeft: '-310%' },
-  { id: 'right', left: '49.2%', imageLeft: '-410%' },
+  { id: 'left', left: '38%', imageLeft: '-316.667%' },
+  { id: 'right', left: '56%', imageLeft: '-466.667%' },
 ];
 
 export default function Interactive3DCharacter({ onOpenChat }) {
@@ -93,7 +93,7 @@ export default function Interactive3DCharacter({ onOpenChat }) {
               className="absolute overflow-hidden"
               style={{
                 left: eye.left,
-                top: '25.5%',
+                top: '20%',
                 width: '12%',
                 height: '10.5%',
                 WebkitMaskImage: 'radial-gradient(ellipse at center, black 48%, transparent 74%)',
@@ -108,10 +108,10 @@ export default function Interactive3DCharacter({ onOpenChat }) {
                 className="absolute max-w-none transition-transform duration-100 ease-out"
                 style={{
                   width: '833.333%',
-                  height: '952.381%',
+                  height: '1428.571%',
                   maxWidth: 'none',
                   left: eye.imageLeft,
-                  top: '-242.857%',
+                  top: '-428.571%',
                   transform: `translate(${gaze.x}px, ${gaze.y}px)`,
                 }}
               />
