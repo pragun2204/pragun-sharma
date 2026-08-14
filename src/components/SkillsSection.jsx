@@ -180,6 +180,8 @@ export default function SkillsSection({ profile }) {
                   style={{
                     animationDuration: skill.duration,
                     animationDelay: skill.delay,
+                    willChange: 'transform',
+                    transform: 'translateZ(0)',
                   }}
                   className={`${animStyle} ${skill.offset} relative group flex flex-col items-center justify-center cursor-pointer transition-all duration-300`}
                 >
@@ -188,9 +190,8 @@ export default function SkillsSection({ profile }) {
                   <div
                     className={`relative ${skill.size} rounded-full border-2 ${skill.borderColor} p-1.5 flex flex-col items-center justify-center transition-all duration-500 group-hover:scale-125 group-hover:z-50`}
                     style={{
-                      boxShadow: `0 0 25px ${skill.glowColor}`,
-                      background: 'rgba(15, 23, 42, 0.75)',
-                      backdropFilter: 'blur(12px)',
+                      boxShadow: `0 0 20px ${skill.glowColor}`,
+                      background: 'rgba(11, 22, 38, 0.92)',
                     }}
                   >
                     

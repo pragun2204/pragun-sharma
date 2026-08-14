@@ -20,7 +20,7 @@ export default function App() {
   const [isResumeOpen, setIsResumeOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
-  // Fetch backend profile & check backend health
+  // Fetch backend profile once on mount
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -31,35 +31,38 @@ export default function App() {
           setBackendStatus(true);
         }
       } catch (err) {
-        console.warn('Backend API connection pending...');
+        // Quiet fallback if backend API is offline
       }
     };
 
     fetchProfile();
-    const interval = setInterval(fetchProfile, 5000);
-    return () => clearInterval(interval);
   }, []);
 
-  // Track active section on scroll
+  // Track active section smoothly using IntersectionObserver (zero scroll layout thrashing)
   useEffect(() => {
     const sections = ['hero', 'about', 'skills', 'projects', 'experience', 'achievements', 'contact'];
-    const handleScroll = () => {
-      const scrollPosition = window.scrollY + 200;
-      for (const sectionId of sections) {
-        const el = document.getElementById(sectionId);
-        if (el) {
-          const top = el.offsetTop;
-          const height = el.offsetHeight;
-          if (scrollPosition >= top && scrollPosition < top + height) {
-            setActiveSection(sectionId);
-            break;
-          }
-        }
-      }
-    };
+    const elements = sections
+      .map((id) => document.getElementById(id))
+      .filter(Boolean);
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    if (elements.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      {
+        rootMargin: '-20% 0px -40% 0px',
+        threshold: 0.1,
+      }
+    );
+
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
   }, []);
 
   return (

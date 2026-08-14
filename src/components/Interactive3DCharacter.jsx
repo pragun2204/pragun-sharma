@@ -13,42 +13,85 @@ const eyeWindows = [
 
 export default function Interactive3DCharacter({ onOpenChat }) {
   const containerRef = useRef(null);
-  const [mousePos, setMousePos] = useState({ tiltX: 0, tiltY: 0 });
-  const [gaze, setGaze] = useState({ x: 0, y: 0 });
   const [clickCount, setClickCount] = useState(0);
   const [speechBubble, setSpeechBubble] = useState('Hey there! Move your mouse around!');
 
   useEffect(() => {
-    const handleMouseMove = (event) => {
-      if (!containerRef.current) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-      const rect = containerRef.current.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 3;
-      const deltaX = event.clientX - centerX;
-      const deltaY = event.clientY - centerY;
-      const distance = Math.hypot(deltaX, deltaY);
-      const maxEyeShift = 3.5;
+    let center = { x: 0, y: 0 };
+    let reqId = null;
+    let targetX = 0;
+    let targetY = 0;
 
-      setGaze({
-        x: distance ? (deltaX / distance) * Math.min(maxEyeShift, distance / 150) : 0,
-        y: distance ? (deltaY / distance) * Math.min(maxEyeShift, distance / 150) : 0,
-      });
-
-      setMousePos({
-        tiltX: (deltaY / window.innerHeight) * -12,
-        tiltY: (deltaX / window.innerWidth) * 12,
-      });
+    const updateCenter = () => {
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      center.x = rect.left + rect.width / 2;
+      center.y = rect.top + rect.height / 3;
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    updateCenter();
+    window.addEventListener('resize', updateCenter, { passive: true });
+    window.addEventListener('scroll', updateCenter, { passive: true });
+
+    const onMouseMove = (e) => {
+      targetX = e.clientX;
+      targetY = e.clientY;
+
+      if (!reqId) {
+        reqId = requestAnimationFrame(() => {
+          reqId = null;
+          const deltaX = targetX - center.x;
+          const deltaY = targetY - center.y;
+          const distance = Math.hypot(deltaX, deltaY);
+          const maxEyeShift = 3.5;
+
+          const gazeX = distance ? (deltaX / distance) * Math.min(maxEyeShift, distance / 150) : 0;
+          const gazeY = distance ? (deltaY / distance) * Math.min(maxEyeShift, distance / 150) : 0;
+          const tiltX = (deltaY / window.innerHeight) * -12;
+          const tiltY = (deltaX / window.innerWidth) * 12;
+
+          container.style.setProperty('--tilt-x', `${tiltX.toFixed(2)}deg`);
+          container.style.setProperty('--tilt-y', `${tiltY.toFixed(2)}deg`);
+          container.style.setProperty('--gaze-x', `${gazeX.toFixed(2)}px`);
+          container.style.setProperty('--gaze-y', `${gazeY.toFixed(2)}px`);
+        });
+      }
+    };
+
+    window.addEventListener('mousemove', onMouseMove, { passive: true });
+
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('resize', updateCenter);
+      window.removeEventListener('scroll', updateCenter);
+      if (reqId) cancelAnimationFrame(reqId);
+    };
   }, []);
+
+  const handleMouseLeave = () => {
+    if (containerRef.current) {
+      containerRef.current.style.setProperty('--gaze-x', '0px');
+      containerRef.current.style.setProperty('--gaze-y', '0px');
+      containerRef.current.style.setProperty('--tilt-x', '0deg');
+      containerRef.current.style.setProperty('--tilt-y', '0deg');
+    }
+  };
 
   const handleCharacterClick = () => {
     setClickCount((previous) => previous + 1);
-    setGaze({ x: 0, y: 3.5 });
-    window.setTimeout(() => setGaze({ x: 0, y: 0 }), 420);
+    if (containerRef.current) {
+      containerRef.current.style.setProperty('--gaze-x', '0px');
+      containerRef.current.style.setProperty('--gaze-y', '3.5px');
+      window.setTimeout(() => {
+        if (containerRef.current) {
+          containerRef.current.style.setProperty('--gaze-x', '0px');
+          containerRef.current.style.setProperty('--gaze-y', '0px');
+        }
+      }, 420);
+    }
 
     const greetings = [
       "Hi! I'm Pragun's 3D Avatar!",
@@ -64,11 +107,11 @@ export default function Interactive3DCharacter({ onOpenChat }) {
     <div
       ref={containerRef}
       onClick={handleCharacterClick}
-      onMouseLeave={() => setGaze({ x: 0, y: 0 })}
+      onMouseLeave={handleMouseLeave}
       className="relative group cursor-pointer select-none max-w-md w-full mx-auto"
       style={{
-        transform: `perspective(1000px) rotateX(${mousePos.tiltX}deg) rotateY(${mousePos.tiltY}deg)`,
-        transition: 'transform 0.15s ease-out',
+        transform: 'perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))',
+        willChange: 'transform',
       }}
     >
       <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-30 bg-slate-900/95 border border-cyan-500/40 text-cyan-200 px-4 py-2 rounded-2xl shadow-2xl text-xs font-mono flex items-center gap-2 whitespace-nowrap animate-bounce">
@@ -105,14 +148,15 @@ export default function Interactive3DCharacter({ onOpenChat }) {
                 alt=""
                 aria-hidden="true"
                 draggable="false"
-                className="absolute max-w-none transition-transform duration-100 ease-out"
+                className="absolute max-w-none"
                 style={{
                   width: '833.333%',
                   height: '952.381%',
                   maxWidth: 'none',
                   left: eye.imageLeft,
                   top: '-190.476%',
-                  transform: `translate(${gaze.x}px, ${gaze.y}px)`,
+                  transform: 'translate(var(--gaze-x, 0px), var(--gaze-y, 0px))',
+                  willChange: 'transform',
                 }}
               />
             </div>

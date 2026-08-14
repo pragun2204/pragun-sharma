@@ -39,7 +39,7 @@ export default function HeroSection({ profile, onOpenResume, onOpenChat }) {
     return () => clearTimeout(timeout);
   }, [typedText, isDeleting, roleIndex]);
 
-  // Interactive Neural Mesh Canvas
+  // Interactive Neural Mesh Canvas (High-Performance 60 FPS)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -48,38 +48,46 @@ export default function HeroSection({ profile, onOpenResume, onOpenChat }) {
     let animationFrameId;
     let width = (canvas.width = canvas.offsetWidth);
     let height = (canvas.height = canvas.offsetHeight);
+    let canvasRect = canvas.getBoundingClientRect();
 
     const handleResize = () => {
       if (!canvas) return;
       width = canvas.width = canvas.offsetWidth;
       height = canvas.height = canvas.offsetHeight;
+      canvasRect = canvas.getBoundingClientRect();
     };
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
 
-    const numNodes = Math.min(45, Math.floor(width / 25));
+    const numNodes = Math.min(35, Math.floor(width / 30));
     const nodes = Array.from({ length: numNodes }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.7,
-      vy: (Math.random() - 0.5) * 0.7,
+      vx: (Math.random() - 0.5) * 0.6,
+      vy: (Math.random() - 0.5) * 0.6,
       radius: Math.random() * 2 + 1.5,
     }));
 
     let mouse = { x: -1000, y: -1000 };
 
     const handleMouseMove = (e) => {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left;
-      mouse.y = e.clientY - rect.top;
+      mouse.x = e.clientX - canvasRect.left;
+      mouse.y = e.clientY - canvasRect.top;
     };
 
-    canvas.addEventListener('mousemove', handleMouseMove);
+    const handleMouseLeave = () => {
+      mouse.x = -1000;
+      mouse.y = -1000;
+    };
+
+    canvas.addEventListener('mousemove', handleMouseMove, { passive: true });
+    canvas.addEventListener('mouseleave', handleMouseLeave, { passive: true });
 
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Update & Draw Nodes
-      nodes.forEach((node, i) => {
+      // Update & Draw Nodes without expensive canvas shadowBlur
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
         node.x += node.vx;
         node.y += node.vy;
 
@@ -89,40 +97,37 @@ export default function HeroSection({ profile, onOpenResume, onOpenChat }) {
         // Mouse attraction
         const dxMouse = mouse.x - node.x;
         const dyMouse = mouse.y - node.y;
-        const distMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
-        if (distMouse < 150) {
-          node.x += (dxMouse / distMouse) * 0.5;
-          node.y += (dyMouse / distMouse) * 0.5;
+        const distMouse = Math.hypot(dxMouse, dyMouse);
+        if (distMouse < 140) {
+          node.x += (dxMouse / distMouse) * 0.4;
+          node.y += (dyMouse / distMouse) * 0.4;
         }
 
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
-        ctx.fillStyle = i % 2 === 0 ? 'rgba(99, 102, 241, 0.7)' : 'rgba(168, 85, 247, 0.7)';
-        ctx.shadowColor = i % 2 === 0 ? '#6366f1' : '#a855f7';
-        ctx.shadowBlur = 8;
+        ctx.fillStyle = i % 2 === 0 ? 'rgba(125, 211, 252, 0.85)' : 'rgba(45, 212, 191, 0.85)';
         ctx.fill();
-        ctx.shadowBlur = 0;
 
         // Draw connections
         for (let j = i + 1; j < nodes.length; j++) {
           const n2 = nodes[j];
           const dx = n2.x - node.x;
           const dy = n2.y - node.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
+          const dist = Math.hypot(dx, dy);
 
-          if (dist < 130) {
+          if (dist < 120) {
             ctx.beginPath();
             ctx.moveTo(node.x, node.y);
             ctx.lineTo(n2.x, n2.y);
-            const alpha = (1 - dist / 130) * 0.25;
-            ctx.strokeStyle = i % 3 === 0 
-              ? `rgba(99, 102, 241, ${alpha})` 
-              : `rgba(168, 85, 247, ${alpha})`;
-            ctx.lineWidth = 0.8;
+            const alpha = (1 - dist / 120) * 0.22;
+            ctx.strokeStyle = i % 3 === 0
+              ? `rgba(56, 189, 248, ${alpha})`
+              : `rgba(20, 184, 166, ${alpha})`;
+            ctx.lineWidth = 0.75;
             ctx.stroke();
           }
         }
-      });
+      }
 
       animationFrameId = requestAnimationFrame(render);
     };
@@ -131,7 +136,10 @@ export default function HeroSection({ profile, onOpenResume, onOpenChat }) {
 
     return () => {
       window.removeEventListener('resize', handleResize);
-      if (canvas) canvas.removeEventListener('mousemove', handleMouseMove);
+      if (canvas) {
+        canvas.removeEventListener('mousemove', handleMouseMove);
+        canvas.removeEventListener('mouseleave', handleMouseLeave);
+      }
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
