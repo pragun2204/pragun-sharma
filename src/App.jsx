@@ -1,176 +1,139 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
+const marqueeImages = [
+  'https://motionsites.ai/assets/hero-space-voyage-preview-eECLH3Yc.gif',
+  'https://motionsites.ai/assets/hero-codenest-preview-Cgppc2qV.gif',
+  'https://motionsites.ai/assets/hero-stellar-ai-v2-preview-DjvxjG3C.gif',
+  'https://motionsites.ai/assets/hero-transform-data-preview-Cx5OU29N.gif',
+  'https://motionsites.ai/assets/hero-vitara-preview-Cjz2QYyU.gif',
+  'https://motionsites.ai/assets/hero-terra-preview-BFjrCr7T.gif',
+  'https://motionsites.ai/assets/hero-aethera-preview-DknSlcTa.gif',
+];
 
 const projects = [
   {
+    number: '01',
+    category: 'HEALTH TECH / COMPUTER VISION',
     title: 'OptiPulse',
-    meta: 'COMPUTER VISION / HEALTH TECH / 2026',
-    summary: 'A contactless vital-signs monitor using MediaPipe, rPPG signal processing and PhysNet 3D-CNNs.',
-    metric: '±0.8–1.4 BPM heart-rate error',
-    tags: ['Python', 'MediaPipe', 'PhysNet', 'FastAPI'],
+    description: 'Contactless vital-sign monitoring built with MediaPipe, rPPG signal processing and PhysNet 3D-CNNs.',
+    metric: '±0.8–1.4 BPM',
+    images: [
+      'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055344_5eff02e0-87a5-41ce-b64f-eb08da8f33db.png&w=1280&q=85',
+      'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055431_11d841fd-8b41-46a5-82e4-b04f2407a7d8.png&w=1280&q=85',
+      'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055451_e317bf2d-28d4-48cc-86b0-6f72f25b6327.png&w=1280&q=85',
+    ],
   },
   {
+    number: '02',
+    category: 'DEEP LEARNING / MEDICAL AI',
     title: 'Breast Cancer CNN',
-    meta: 'DEEP LEARNING / COMPUTER VISION / 2026',
-    summary: 'A PyTorch convolutional neural network trained from scratch on 780+ ultrasound images.',
-    metric: '85% diagnostic accuracy',
-    tags: ['PyTorch', 'CNN', 'OpenCV', 'Python'],
+    description: 'A PyTorch CNN trained from scratch on 780+ ultrasound images for accessible diagnostic support.',
+    metric: '85% ACCURACY',
+    images: [
+      'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055654_911201c5-36d9-4bc6-bac7-331adfce159f.png&w=1280&q=85',
+      'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055723_5ceda0b8-d9c2-4665-b2e3-83ba19ba76d1.png&w=1280&q=85',
+      'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055753_adc5dcbd-a8e6-49c0-b43a-9b030d835cea.png&w=1280&q=85',
+    ],
   },
   {
+    number: '03',
+    category: 'TIME SERIES / PREDICTIVE AI',
     title: 'Turbofan RUL',
-    meta: 'TIME SERIES / PREDICTIVE AI / 2026',
-    summary: 'LSTM models that learn from 20,000+ NASA sensor logs to predict remaining useful life.',
-    metric: '18% predictive RMSE reduction',
-    tags: ['PyTorch', 'LSTM', 'Pandas', 'Time Series'],
-  },
-  {
-    title: 'Prompt to Image',
-    meta: 'GENERATIVE AI / NLP / 2025',
-    summary: 'A Hugging Face Transformer pipeline for generating richer image prompts with lower latency.',
-    metric: '25% faster prompt processing',
-    tags: ['Transformers', 'Hugging Face', 'Python'],
-  },
-  {
-    title: 'AI Interview Bot',
-    meta: 'LLM APIS / BACKEND / 2025',
-    summary: 'FastAPI and OpenAI-powered interview feedback APIs designed for quick, useful responses.',
-    metric: 'Under 1.5s response time',
-    tags: ['FastAPI', 'OpenAI API', 'REST'],
+    description: 'LSTM models that learn from 20,000+ NASA sensor logs to predict remaining useful life.',
+    metric: '18% RMSE REDUCTION',
+    images: [
+      'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055759_963cfb0b-4bd1-4b0f-9d0a-09bd6cf95b2f.png&w=1280&q=85',
+      'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_060108_438f781a-9846-4dcc-89ab-c4e6cb830f5b.png&w=1280&q=85',
+      'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260412_055818_9d062121-ad7e-46b9-999a-1a6a692ef1ee.png&w=1280&q=85',
+    ],
   },
 ];
 
-const skills = ['Python', 'PyTorch', 'TensorFlow', 'FastAPI', 'Computer Vision', 'Generative AI', 'SQL', 'PySpark', 'Pandas', 'Data Engineering'];
+const services = [
+  ['01', 'Machine Learning', 'Training focused models that turn noisy data into useful predictions.'],
+  ['02', 'Computer Vision', 'Building vision pipelines for medical images, video feeds and real-world signals.'],
+  ['03', 'Generative AI', 'Designing practical LLM and Transformer workflows with measurable improvements.'],
+  ['04', 'Data Engineering', 'Connecting preprocessing, feature engineering and reliable data pipelines.'],
+  ['05', 'Backend APIs', 'Shipping FastAPI services that make intelligent systems usable in production.'],
+];
 
-function Arrow({ direction = 'right' }) {
-  return <span aria-hidden="true" className={`arrow arrow-${direction}`}>→</span>;
+function ContactButton() {
+  return <a className="contact-button" href="mailto:pragunsharma2204@gmail.com">CONTACT ME <span>↗</span></a>;
 }
 
-export default function App() {
-  const [mode, setMode] = useState('hero');
-  const [projectIndex, setProjectIndex] = useState(0);
-  const [busy, setBusy] = useState(false);
+function FadeIn({ children, className = '' }) {
+  return <div className={`reveal ${className}`}>{children}</div>;
+}
 
-  const project = projects[projectIndex];
-  const nextProject = () => setProjectIndex((index) => (index + 1) % projects.length);
-  const previousProject = () => {
-    if (projectIndex === 0) setMode('hero');
-    else setProjectIndex((index) => index - 1);
-  };
-
-  const moveToCase = () => {
-    if (mode === 'case' || busy) return;
-    setBusy(true);
-    window.setTimeout(() => {
-      setMode('case');
-      setBusy(false);
-    }, 420);
-  };
-
-  const moveToHero = () => {
-    if (mode === 'hero' || busy) return;
-    setBusy(true);
-    window.setTimeout(() => {
-      setMode('hero');
-      setBusy(false);
-    }, 360);
-  };
+function App() {
+  const [activeProject, setActiveProject] = useState(0);
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+  const rootRef = useRef(null);
 
   useEffect(() => {
-    const onWheel = (event) => {
-      event.preventDefault();
-      if (event.deltaY > 18 || event.deltaX > 18) mode === 'hero' ? moveToCase() : nextProject();
-      if (event.deltaY < -18 || event.deltaX < -18) mode === 'case' ? previousProject() : null;
-    };
-    const onKeyDown = (event) => {
-      if (['ArrowDown', 'PageDown', ' '].includes(event.key)) {
-        event.preventDefault();
-        mode === 'hero' ? moveToCase() : nextProject();
-      }
-      if (['ArrowUp', 'PageUp'].includes(event.key)) {
-        event.preventDefault();
-        mode === 'case' ? previousProject() : null;
-      }
-      if (event.key === 'Escape') moveToHero();
-    };
-    window.addEventListener('wheel', onWheel, { passive: false });
-    window.addEventListener('keydown', onKeyDown);
-    return () => {
-      window.removeEventListener('wheel', onWheel);
-      window.removeEventListener('keydown', onKeyDown);
-    };
-  });
+    const root = rootRef.current;
+    if (!root) return undefined;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add('is-visible');
+      });
+    }, { threshold: 0.12 });
+    root.querySelectorAll('.reveal').forEach((element) => observer.observe(element));
+    return () => observer.disconnect();
+  }, []);
 
-  const statusText = useMemo(() => mode === 'hero' ? 'SCROLL INTO THE WORK' : `${String(projectIndex + 1).padStart(2, '0')} / ${String(projects.length).padStart(2, '0')}`, [mode, projectIndex]);
+  const movePortrait = (event) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setMouse({ x: (event.clientX - rect.left - rect.width / 2) / 18, y: (event.clientY - rect.top - rect.height / 2) / 18 });
+  };
 
   return (
-    <div className={`portfolio-stage ${mode === 'case' ? 'is-case' : ''} ${busy ? 'is-busy' : ''}`}>
-      <header className="topbar">
-        <button className="tag" onClick={moveToHero}>my studio</button>
-        <button className="tag" onClick={moveToCase}>portfolio</button>
-        <a className="tag tag-contact" href="mailto:pragunsharma2204@gmail.com">contacts</a>
-        <a className="tag tag-discuss" href="mailto:pragunsharma2204@gmail.com?subject=Let's%20build%20something">discuss a project</a>
-        <button className="brand" onClick={moveToHero}>PRAGUN SHARMA</button>
-      </header>
+    <div className="creator-site" ref={rootRef}>
+      <section className="hero-section" id="top">
+        <nav className="site-nav">
+          <a href="#about">ABOUT</a><a href="#services">SERVICES</a><a href="#projects">PROJECTS</a><a href="#contact">CONTACT</a>
+        </nav>
+        <FadeIn className="hero-heading-wrap"><h1 className="hero-heading">HI, I&apos;M PRAGUN</h1></FadeIn>
+        <FadeIn className="hero-description"><p>AI/ML ENGINEER<br />DRIVEN BY BUILDING<br />USEFUL INTELLIGENCE.</p></FadeIn>
+        <FadeIn className="hero-contact"><ContactButton /></FadeIn>
+        <div className="portrait-stage" onMouseMove={movePortrait} onMouseLeave={() => setMouse({ x: 0, y: 0 })}>
+          <img className="creator-portrait" style={{ transform: `translate3d(${mouse.x}px, ${mouse.y}px, 0)` }} src="/assets/pragun_3d_avatar.jpg" alt="3D character portrait of Pragun Sharma" />
+        </div>
+        <div className="hero-scroll">SCROLL TO EXPLORE ↓</div>
+      </section>
 
-      <main className="scene" aria-live="polite">
-        <section className="hero-panel" aria-label="Pragun Sharma introduction">
-          <div className="hero-wordmark">PRAGUN</div>
-          <div className="hero-script">ai / data / systems</div>
-          <div className="hero-copy">
-            <p className="eyebrow">AI/ML ENGINEER · DATA SCIENCE</p>
-            <h1>Building useful intelligence<br /><em>from raw signals.</em></h1>
-            <p className="intro">Computer Science student at ABES Engineering College and BS Data Science student at IIT Madras. I turn research ideas into reliable models, APIs and data products.</p>
-            <div className="hero-links">
-              <button className="ink-button" onClick={moveToCase}>view selected work <Arrow /></button>
-              <a className="text-link" href="/Pragun_Final_Resume.pdf" download>download resume <Arrow /></a>
-            </div>
-          </div>
-          <div className="portrait-wrap">
-            <div className="portrait-glow" />
-            <img className="portrait" src="/assets/pragun-developer-avatar.png" alt="Illustrated portrait of Pragun Sharma" />
-          </div>
-          <div className="badge-card">
-            <div className="badge-top">PROFILE / 2026</div>
-            <strong>PRAGUN<br />SHARMA</strong>
-            <span>AI ENGINEER // BUILDER</span>
-            <div className="badge-line"><small>BASED IN</small><b>NOIDA, IN</b></div>
-            <div className="badge-line"><small>FOCUS</small><b>ML + DATA</b></div>
-            <div className="badge-line"><small>STATUS</small><b>OPEN TO BUILD</b></div>
-          </div>
-        </section>
+      <section className="marquee-section" aria-label="Creative work previews">
+        <div className="marquee-row marquee-forward">{[...marqueeImages, ...marqueeImages].map((image, index) => <img key={`${image}-${index}`} src={image} alt="" loading="lazy" />)}</div>
+        <div className="marquee-row marquee-backward">{[...marqueeImages.slice().reverse(), ...marqueeImages.slice().reverse()].map((image, index) => <img key={`${image}-${index}`} src={image} alt="" loading="lazy" />)}</div>
+      </section>
 
-        <section className="case-panel" aria-label="Selected portfolio project">
-          <div className="case-laptop" onClick={nextProject} role="button" tabIndex="0" onKeyDown={(event) => event.key === 'Enter' && nextProject()}>
-            <div className="laptop-screen">
-              <div className="screen-top"><span>PRAGUN / LAB</span><span>LIVE MODEL</span></div>
-              <div className="screen-grid" />
-              <div className="screen-project">{project.title}</div>
-              <div className="screen-metric">{project.metric}</div>
-              <div className="screen-bars"><i /><i /><i /><i /><i /></div>
-            </div>
-            <div className="laptop-base"><span>click to switch project</span></div>
-          </div>
-          <div className="ticket">
-            <span className="punch p1" /><span className="punch p2" /><span className="punch p3" /><span className="punch p4" />
-            <h2>{project.title}</h2>
-            <div className="ticket-meta">{project.meta.split(' / ').map((item) => <span key={item}>{item}</span>)}</div>
-          </div>
-          <div className="case-description">
-            <strong>// selected build</strong>
-            <p>{project.summary}</p>
-            <b className="case-count">{statusText}</b>
-          </div>
-          <div className="case-actions">
-            <button className="case-nav" onClick={previousProject}><span>←</span><small>previous case</small></button>
-            <button className="case-nav case-next" onClick={nextProject}><span>→</span><small>next case</small></button>
-          </div>
-        </section>
-      </main>
+      <section className="about-section" id="about">
+        <div className="orb orb-left">✦</div><div className="orb orb-right">◒</div>
+        <FadeIn><h2 className="section-heading">ABOUT ME</h2></FadeIn>
+        <FadeIn className="about-copy"><p>I&apos;m a Computer Science student at ABES Engineering College and a BS Data Science student at IIT Madras. I enjoy working where research, engineering and real-world impact meet — from computer vision and generative AI to data pipelines and fast APIs.</p></FadeIn>
+        <FadeIn className="about-contact"><ContactButton /></FadeIn>
+      </section>
 
-      <div className="skills-strip">
-        {skills.map((skill) => <span key={skill}>{skill}</span>)}
-      </div>
-      <div className="scroll-hint"><i />{statusText}</div>
-      <div className="availability">● AVAILABLE FOR COLLABORATION</div>
+      <section className="services-section" id="services">
+        <FadeIn><h2 className="section-heading dark-heading">SERVICES</h2></FadeIn>
+        <div className="services-list">{services.map(([number, title, description]) => <FadeIn className="service-item" key={number}><b>{number}</b><div><h3>{title}</h3><p>{description}</p></div></FadeIn>)}</div>
+      </section>
+
+      <section className="projects-section" id="projects">
+        <FadeIn><h2 className="section-heading">PROJECTS</h2></FadeIn>
+        <div className="project-stack">
+          {projects.map((project, index) => (
+            <article className={`project-card ${activeProject === index ? 'project-active' : ''}`} key={project.title} style={{ '--stack-index': index }}>
+              <div className="project-top"><span className="project-number">{project.number}</span><div><small>{project.category}</small><h3>{project.title}</h3></div><button onClick={() => setActiveProject(index)}>VIEW CASE <span>↗</span></button></div>
+              <div className="project-body"><div className="project-copy"><p>{project.description}</p><strong>{project.metric}</strong></div><div className="project-images"><div><img src={project.images[0]} alt="" loading="lazy" /><img src={project.images[1]} alt="" loading="lazy" /></div><img src={project.images[2]} alt="" loading="lazy" /></div></div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <footer className="site-footer" id="contact"><div><span>LET&apos;S BUILD SOMETHING</span><h2>MAKE IT<br /><em>INTELLIGENT.</em></h2></div><ContactButton /><p>© 2026 PRAGUN SHARMA · NOIDA, INDIA</p></footer>
     </div>
   );
 }
+
+export default App;
