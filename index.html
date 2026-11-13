@@ -1,18 +1,40 @@
 <!DOCTYPE html>
-<html lang="en" class="dark scroll-smooth">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pragun Sharma | AI/ML & Data Science Engineer</title>
     <meta name="description" content="Portfolio of Pragun Sharma - AI/ML Engineer, Pursuing BS Data Science at IIT Madras & B.Tech CSE at ABES. PyTorch, Generative AI, Computer Vision, FastAPI." />
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="canonical" href="https://pragunsharma.tech/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://pragunsharma.tech/" />
+    <meta property="og:title" content="Pragun Sharma | AI/ML & Data Science Engineer" />
+    <meta property="og:description" content="AI/ML and Data Science Engineer building computer vision, time-series and Generative AI systems." />
+    <meta property="og:image" content="https://pragunsharma.tech/og-image.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Pragun Sharma | AI/ML & Data Science Engineer" />
+    <meta name="twitter:description" content="AI/ML and Data Science Engineer building computer vision, time-series and Generative AI systems." />
+    <script>
+      (function () {
+        var theme = localStorage.getItem('theme');
+        if (theme === 'dark') document.documentElement.dataset.theme = 'dark';
+      }());
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Pragun Sharma",
+        "jobTitle": "AI/ML & Data Science Engineer",
+        "address": {"@type": "PostalAddress", "addressLocality": "Noida", "addressRegion": "Uttar Pradesh", "addressCountry": "IN"},
+        "alumniOf": [{"@type": "CollegeOrUniversity", "name": "IIT Madras"}, {"@type": "CollegeOrUniversity", "name": "ABES Engineering College"}],
+        "sameAs": ["https://github.com/pragun2204", "https://www.linkedin.com/in/pragun-sharma-0444a722/"]
+      }
+    </script>
   </head>
-  <body class="bg-[#06101e] text-slate-100 font-sans selection:bg-sky-500 selection:text-white antialiased overflow-x-hidden">
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

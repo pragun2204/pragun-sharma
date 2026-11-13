@@ -1,134 +1,149 @@
-import React, { useState, useEffect } from 'react';
-import Navbar from './components/Navbar';
-import HeroSection from './components/HeroSection';
-import AboutSection from './components/AboutSection';
-import SkillsSection from './components/SkillsSection';
-import ProjectsSection from './components/ProjectsSection';
-import ExperienceSection from './components/ExperienceSection';
-import AchievementsSection from './components/AchievementsSection';
-import ContactSection from './components/ContactSection';
-import Footer from './components/Footer';
-import ResumeModal from './components/ResumeModal';
-import PragunAIChat from './components/PragunAIChat';
-import SocialSidebar from './components/SocialSidebar';
-import { Bot, Sparkles, MessageSquare } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import emailjs from '@emailjs/browser';
+import { profile } from './data/profile';
 
-export default function App() {
-  const [profile, setProfile] = useState(null);
-  const [backendStatus, setBackendStatus] = useState(false);
-  const [activeSection, setActiveSection] = useState('hero');
-  const [isResumeOpen, setIsResumeOpen] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
+const mailParts = ['pragunsharma2204', 'gmail.com'];
+const mailto = `mailto:${mailParts[0]}@${mailParts[1]}`;
 
-  // Fetch backend profile once on mount
+function Icon({ name }) {
+  const paths = {
+    arrow: <><path d="M5 12h13" /><path d="m13 6 6 6-6 6" /></>,
+    menu: <><path d="M4 7h16" /><path d="M4 12h16" /><path d="M4 17h16" /></>,
+    close: <><path d="m6 6 12 12" /><path d="m18 6-12 12" /></>,
+    sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" /></>,
+    moon: <path d="M20.2 15.1A8.5 8.5 0 0 1 8.9 3.8 8.5 8.5 0 1 0 20.2 15.1Z" />,
+  };
+  return <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>;
+}
+
+function Reveal({ children, className = '' }) {
+  return <div className={`reveal ${className}`}>{children}</div>;
+}
+
+function App() {
+  const [dark, setDark] = useState(() => localStorage.getItem('theme') === 'dark');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState('work');
+  const [formState, setFormState] = useState({ status: 'idle', message: '' });
+  const [time, setTime] = useState('');
+  const mainRef = useRef(null);
+  const navRef = useRef(null);
+
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await fetch('/api/profile');
-        if (res.ok) {
-          const data = await res.json();
-          setProfile(data);
-          setBackendStatus(true);
-        }
-      } catch (err) {
-        // Quiet fallback if backend API is offline
-      }
+    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    localStorage.setItem('theme', dark ? 'dark' : 'light');
+  }, [dark]);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    const observer = new IntersectionObserver((entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add('is-visible')), { threshold: 0.12 });
+    mainRef.current?.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+    const sectionObserver = new IntersectionObserver((entries) => entries.forEach((entry) => entry.isIntersecting && setActiveSection(entry.target.id)), { rootMargin: '-20% 0px -65% 0px' });
+    sections.forEach((section) => document.getElementById(section) && sectionObserver.observe(document.getElementById(section)));
+    return () => { window.removeEventListener('scroll', onScroll); observer.disconnect(); sectionObserver.disconnect(); };
+  }, []);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const onKey = (event) => {
+      if (event.key === 'Escape') setMenuOpen(false);
+      if (event.key !== 'Tab') return;
+      const focusable = [...navRef.current.querySelectorAll('a, button')];
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     };
+    document.body.classList.add('menu-open');
+    navRef.current?.querySelector('a')?.focus();
+    window.addEventListener('keydown', onKey);
+    return () => { document.body.classList.remove('menu-open'); window.removeEventListener('keydown', onKey); };
+  }, [menuOpen]);
 
-    fetchProfile();
-  }, []);
-
-  // Track active section smoothly using IntersectionObserver (zero scroll layout thrashing)
   useEffect(() => {
-    const sections = ['hero', 'about', 'skills', 'projects', 'experience', 'achievements', 'contact'];
-    const elements = sections
-      .map((id) => document.getElementById(id))
-      .filter(Boolean);
-
-    if (elements.length === 0) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
-        });
-      },
-      {
-        rootMargin: '-20% 0px -40% 0px',
-        threshold: 0.1,
-      }
-    );
-
-    elements.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    const updateTime = () => setTime(new Intl.DateTimeFormat('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' }).format(new Date()));
+    updateTime();
+    const interval = window.setInterval(updateTime, 60000);
+    return () => window.clearInterval(interval);
   }, []);
+
+  const sections = useMemo(() => ['work', 'about', 'experience', 'contact'], []);
+  const submitForm = async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    if (form.website.value) return;
+    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+    if (!serviceId || !templateId || !publicKey) {
+      setFormState({ status: 'error', message: 'Email form is not configured yet. Please use the email link above.' });
+      return;
+    }
+    setFormState({ status: 'sending', message: 'Sending...' });
+    try {
+      await emailjs.sendForm(serviceId, templateId, form, { publicKey });
+      form.reset();
+      setFormState({ status: 'success', message: 'Thanks — your message is on its way.' });
+    } catch {
+      setFormState({ status: 'error', message: 'Something went wrong. Please use the email link above.' });
+    }
+  };
 
   return (
-    <div className="app-shell min-h-screen text-slate-100 relative">
-      
-      {/* Top Navbar */}
-      <Navbar
-        activeSection={activeSection}
-        onOpenResume={() => setIsResumeOpen(true)}
-        backendStatus={backendStatus}
-      />
+    <div className="site-shell" ref={mainRef}>
+      <a className="skip-link" href="#main">Skip to content</a>
+      <header className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
+        <a className="wordmark" href="#top">Pragun Sharma</a>
+        <nav ref={navRef} className={`main-nav ${menuOpen ? 'is-open' : ''}`} aria-label="Main navigation">
+          <button className="menu-close" onClick={() => setMenuOpen(false)} aria-label="Close menu"><Icon name="close" /></button>
+          {sections.map((section) => <a key={section} className={`nav-link ${activeSection === section ? 'is-active' : ''}`} href={`#${section}`} onClick={() => setMenuOpen(false)}>{section[0].toUpperCase() + section.slice(1)}</a>)}
+          <a className="nav-link" href="/Pragun_Sharma_Resume.pdf" target="_blank" rel="noreferrer">Resume</a>
+        </nav>
+        <div className="header-actions">
+          <button className="theme-toggle" onClick={() => setDark((value) => !value)} aria-label={`Switch to ${dark ? 'light' : 'dark'} theme`}><Icon name={dark ? 'sun' : 'moon'} /></button>
+          <button className="menu-toggle" onClick={() => setMenuOpen(true)} aria-label="Open menu"><Icon name="menu" /></button>
+        </div>
+      </header>
 
-      {/* Floating Left Social Bar */}
-      <SocialSidebar />
+      <main id="main">
+        <section className="hero section-wrap" id="top">
+          <Reveal><p className="mono eyebrow">Noida, India — Open to internships</p></Reveal>
+          <Reveal className="hero-title"><h1>{profile.name}</h1></Reveal>
+          <Reveal className="hero-lede"><p>I build computer vision, time-series and GenAI systems, and ship them behind FastAPI.</p></Reveal>
+          <Reveal className="hero-links"><a href="#work">Selected work <Icon name="arrow" /></a><a href={mailto}>Email me <Icon name="arrow" /></a></Reveal>
+          <Reveal className="currently"><span className="mono">CURRENTLY</span><span>{profile.currently.join(' · ')}</span></Reveal>
+        </section>
 
-      {/* Main Content Sections */}
-      <main>
-        <HeroSection
-          profile={profile}
-          onOpenResume={() => setIsResumeOpen(true)}
-          onOpenChat={() => setIsChatOpen(true)}
-        />
+        <section className="section-wrap content-section" id="work">
+          <Reveal className="section-intro"><p className="mono section-kicker">01 / WORK</p><h2>Selected work</h2><p>Results first. Open a row for the details.</p></Reveal>
+          <div className="work-list">{profile.projects.map((project, index) => <Reveal className="work-item" key={project.title}><details><summary><span className="work-index mono">{String(index + 1).padStart(2, '0')}</span><span className="work-title">{project.title}</span><span className="work-result">{project.result}</span><span className="work-tags mono">{project.tags.join(' · ')}</span><span className="work-year mono">{project.year}</span><Icon name="arrow" /></summary><div className="work-details"><p>{project.summary}</p><p className="metric">{project.result}</p><span className="mono repo-label">REPO</span><span className="fill-link">{project.repo}</span></div></details></Reveal>)}</div>
+        </section>
 
-        <AboutSection profile={profile} />
+        <section className="section-wrap content-section about-grid" id="about">
+          <Reveal className="section-intro"><p className="mono section-kicker">02 / ABOUT</p><h2>A little context</h2></Reveal>
+          <Reveal className="about-copy"><p>{profile.bio}</p><p className="about-note">I prefer clear systems, honest metrics and work that can be explained in plain language.</p></Reveal>
+          <div className="skills-block"><p className="mono section-kicker">SKILLS</p>{Object.entries(profile.skills).map(([group, skills]) => <Reveal className="skill-group" key={group}><h3>{group}</h3><p>{skills}</p></Reveal>)}</div>
+          <div className="education-block"><p className="mono section-kicker">EDUCATION</p>{profile.education.map(([school, degree, details]) => <Reveal className="thin-row" key={school}><strong>{school}</strong><span>{degree}</span><small className="mono">{details}</small></Reveal>)}</div>
+        </section>
 
-        <SkillsSection profile={profile} />
+        <section className="section-wrap content-section" id="experience">
+          <Reveal className="section-intro"><p className="mono section-kicker">03 / EXPERIENCE</p><h2>Where I&apos;ve worked</h2></Reveal>
+          <div className="timeline">{profile.experience.map((item) => <Reveal className="timeline-item" key={item.company}><span className="timeline-dot" /><div><p className="mono">{item.dates}</p><h3>{item.company}</h3><strong>{item.role}</strong><p>{item.details}</p></div></Reveal>)}</div>
+          <div className="certificates"><p className="mono section-kicker">CERTIFICATES &amp; ACHIEVEMENTS</p>{profile.certificates.map(([date, title]) => <Reveal className="thin-row" key={title}><span className="mono">{date}</span><strong>{title}</strong></Reveal>)}<Reveal className="achievement-line"><span className="mono">ACHIEVEMENT</span><p>Shortlisted for AI/ML internship at IIT Ropar Vichaarnaashala Lab (200+ candidates)</p></Reveal></div>
+        </section>
 
-        <ProjectsSection profile={profile} />
-
-        <ExperienceSection profile={profile} />
-
-        <AchievementsSection profile={profile} />
-
-        <ContactSection profile={profile} />
+        <section className="section-wrap content-section contact-section" id="contact">
+          <Reveal className="section-intro"><p className="mono section-kicker">04 / CONTACT</p><h2>Let&apos;s talk</h2><p>Have a question, a useful problem or a project in mind?</p></Reveal>
+          <div className="contact-grid"><div className="contact-links"><a href={mailto}>Email me <Icon name="arrow" /></a><a href={profile.github} target="_blank" rel="noreferrer">GitHub <Icon name="arrow" /></a><a href={profile.linkedin} target="_blank" rel="noreferrer">LinkedIn <Icon name="arrow" /></a></div><form className="contact-form" onSubmit={submitForm}><label>Name<input name="name" required autoComplete="name" /></label><label>Email<input name="email" type="email" required autoComplete="email" /></label><label>Message<textarea name="message" rows="5" required /></label><input className="honeypot" name="website" tabIndex="-1" autoComplete="off" /><button disabled={formState.status === 'sending'} type="submit">{formState.status === 'sending' ? 'Sending...' : 'Send message'} <Icon name="arrow" /></button><p className={`form-message ${formState.status}`}>{formState.message}</p></form></div>
+        </section>
       </main>
 
-      {/* Footer */}
-      <Footer backendStatus={backendStatus} />
-
-      {/* Floating PragunAI Trigger Button */}
-      {!isChatOpen && (
-        <button
-          onClick={() => setIsChatOpen(true)}
-          className="fixed bottom-6 right-6 z-40 flex items-center gap-2.5 px-4 py-3 rounded-full bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-600 hover:brightness-110 text-white font-semibold text-xs shadow-2xl shadow-sky-500/40 border border-sky-400/30 transition-all duration-300 hover:scale-105 active:scale-95 group"
-        >
-          <div className="relative">
-            <Bot className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-            <span className="w-2 h-2 rounded-full bg-emerald-400 border border-slate-900 absolute -top-0.5 -right-0.5 animate-ping" />
-          </div>
-          <span className="font-mono">Ask Here</span>
-        </button>
-      )}
-
-      {/* PragunAI Assistant Drawer */}
-      <PragunAIChat
-        isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(false)}
-      />
-
-      {/* Resume Preview & Download Modal */}
-      <ResumeModal
-        isOpen={isResumeOpen}
-        onClose={() => setIsResumeOpen(false)}
-        profile={profile}
-      />
-
+      <footer className="site-footer section-wrap"><span>© {new Date().getFullYear()} Pragun Sharma</span><span>Noida, local time · {time}</span><a href="#top">Back to top ↑</a></footer>
     </div>
   );
 }
+
+export default App;
