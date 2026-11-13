@@ -6,7 +6,7 @@ export const profile = {
   email: 'pragunsharma2204@gmail.com',
   github: 'https://github.com/pragun2204',
   linkedin: 'https://www.linkedin.com/in/pragun-sharma-0444a722b/',
-  photo: '/images/profile.jpg',
+  photo: '/assets/pragun-professional.webp',
   bio: 'I am a dual-degree student studying Computer Science and Data Science. I work across artificial intelligence, machine learning, deep learning, computer vision, natural language processing, Generative AI and backend API engineering.',
   currently: ['CrowdGen', 'IIT Madras', 'ABES Engineering College'],
   experience: [
