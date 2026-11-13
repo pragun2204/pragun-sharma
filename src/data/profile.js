@@ -40,6 +40,7 @@ export const profile = {
     ['Gautam Public School', 'CBSE Class 10', '2022 · 82%'],
   ],
   certificates: [
+    ['Sept 2026 - Sept 2027', 'Microsoft Certified: Fabric Data Engineer Associate'],
     ['Jul 2026', 'DTU Summer School on AI: Deep Dive into Deep Learning'],
     ['Jul 2026', 'IBM: Make Agentic AI Work for You'],
     ['Nov 2025', 'IBM Generative AI Virtual Internship'],
