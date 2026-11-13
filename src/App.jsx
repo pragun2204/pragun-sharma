@@ -126,7 +126,7 @@ function App() {
         <nav ref={navRef} className={`main-nav ${menuOpen ? 'is-open' : ''}`} aria-label="Main navigation">
           <button className="menu-close" onClick={() => setMenuOpen(false)} aria-label="Close menu"><Icon name="close" /></button>
           {navItems.map(({ id, label }) => <a key={id} className={`nav-link ${activeSection === id ? 'is-active' : ''}`} href={`#${id}`} onClick={() => setMenuOpen(false)}>{label}</a>)}
-          <a className="nav-link resume-link" href="/Pragun_Sharma_Resume.pdf" target="_blank" rel="noreferrer">Resume</a>
+          <a className="nav-link resume-link" href="/Pragun_Sharma_Resume.pdf" download="Pragun_Sharma_Resume.pdf">Resume</a>
         </nav>
         <button className="menu-toggle" onClick={() => setMenuOpen(true)} aria-label="Open menu"><Icon name="menu" /></button>
       </header>
@@ -172,7 +172,7 @@ function App() {
 
         <section className="section-wrap content-section contact-section" id="contact">
           <Reveal className="section-intro"><p className="mono section-kicker">06 / CONTACT</p><h2>Let&apos;s build something.</h2><p>Open to useful problems, thoughtful collaborators and new conversations.</p></Reveal>
-          <div className="contact-grid"><div className="contact-links"><a href={mailto}>Email <Icon name="arrow" /></a><a href={profile.github} target="_blank" rel="noreferrer">GitHub <Icon name="arrow" /></a><a href={profile.linkedin} target="_blank" rel="noreferrer">LinkedIn <Icon name="arrow" /></a><a href="/Pragun_Sharma_Resume.pdf" target="_blank" rel="noreferrer">Resume <Icon name="arrow" /></a></div><form className="contact-form" onSubmit={submitForm}><label>Name<input name="name" required autoComplete="name" /></label><label>Email<input name="email" type="email" required autoComplete="email" /></label><label>Message<textarea name="message" rows="5" required /></label><input className="honeypot" name="website" tabIndex="-1" autoComplete="off" /><button disabled={formState.status === 'sending'} type="submit">{formState.status === 'sending' ? 'Sending...' : 'Send message'} <Icon name="arrow" /></button><p className={`form-message ${formState.status}`}>{formState.message}</p></form></div>
+          <div className="contact-grid"><div className="contact-links"><a href={mailto}>Email <Icon name="arrow" /></a><a href={profile.github} target="_blank" rel="noreferrer">GitHub <Icon name="arrow" /></a><a href={profile.linkedin} target="_blank" rel="noreferrer">LinkedIn <Icon name="arrow" /></a><a href="/Pragun_Sharma_Resume.pdf" download="Pragun_Sharma_Resume.pdf">Resume <Icon name="arrow" /></a></div><form className="contact-form" onSubmit={submitForm}><label>Name<input name="name" required autoComplete="name" /></label><label>Email<input name="email" type="email" required autoComplete="email" /></label><label>Message<textarea name="message" rows="5" required /></label><input className="honeypot" name="website" tabIndex="-1" autoComplete="off" /><button disabled={formState.status === 'sending'} type="submit">{formState.status === 'sending' ? 'Sending...' : 'Send message'} <Icon name="arrow" /></button><p className={`form-message ${formState.status}`}>{formState.message}</p></form></div>
         </section>
       </main>
 
