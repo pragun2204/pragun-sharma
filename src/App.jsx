@@ -1,7 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import emailjs from '@emailjs/browser';
 import { profile } from './data/profile';
 
+const Character3D = lazy(() => new Promise((resolve) => {
+  const load = () => import('./components/Character3D.jsx').then(resolve);
+  if ('requestIdleCallback' in window) window.requestIdleCallback(load, { timeout: 1800 });
+  else window.setTimeout(load, 0);
+}));
 const mailParts = ['pragunsharma2204', 'gmail.com'];
 const mailto = `mailto:${mailParts[0]}@${mailParts[1]}`;
 
@@ -21,27 +26,32 @@ function Reveal({ children, className = '' }) {
 }
 
 function App() {
-  const [dark, setDark] = useState(() => localStorage.getItem('theme') === 'dark');
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [activeSection, setActiveSection] = useState('work');
   const [formState, setFormState] = useState({ status: 'idle', message: '' });
   const [time, setTime] = useState('');
+  const [reaction, setReaction] = useState('idle');
   const mainRef = useRef(null);
   const navRef = useRef(null);
 
   useEffect(() => {
-    document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-    localStorage.setItem('theme', dark ? 'dark' : 'light');
-  }, [dark]);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 24);
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(max > 0 ? window.scrollY / max : 0);
+    };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     const observer = new IntersectionObserver((entries) => entries.forEach((entry) => entry.isIntersecting && entry.target.classList.add('is-visible')), { threshold: 0.12 });
     mainRef.current?.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
-    const sectionObserver = new IntersectionObserver((entries) => entries.forEach((entry) => entry.isIntersecting && setActiveSection(entry.target.id)), { rootMargin: '-20% 0px -65% 0px' });
+    const sectionObserver = new IntersectionObserver((entries) => entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        setActiveSection(entry.target.id);
+        setReaction(entry.target.id === 'work' ? 'work' : entry.target.id === 'contact' ? 'contact' : 'idle');
+      }
+    }), { rootMargin: '-20% 0px -65% 0px' });
     sections.forEach((section) => document.getElementById(section) && sectionObserver.observe(document.getElementById(section)));
     return () => { window.removeEventListener('scroll', onScroll); observer.disconnect(); sectionObserver.disconnect(); };
   }, []);
@@ -96,16 +106,14 @@ function App() {
     <div className="site-shell" ref={mainRef}>
       <a className="skip-link" href="#main">Skip to content</a>
       <header className={`site-header ${scrolled ? 'is-scrolled' : ''}`}>
+        <span className="page-progress" style={{ transform: `scaleX(${progress})` }} aria-hidden="true" />
         <a className="wordmark" href="#top">Pragun Sharma</a>
         <nav ref={navRef} className={`main-nav ${menuOpen ? 'is-open' : ''}`} aria-label="Main navigation">
           <button className="menu-close" onClick={() => setMenuOpen(false)} aria-label="Close menu"><Icon name="close" /></button>
           {sections.map((section) => <a key={section} className={`nav-link ${activeSection === section ? 'is-active' : ''}`} href={`#${section}`} onClick={() => setMenuOpen(false)}>{section[0].toUpperCase() + section.slice(1)}</a>)}
           <a className="nav-link" href="/Pragun_Sharma_Resume.pdf" target="_blank" rel="noreferrer">Resume</a>
         </nav>
-        <div className="header-actions">
-          <button className="theme-toggle" onClick={() => setDark((value) => !value)} aria-label={`Switch to ${dark ? 'light' : 'dark'} theme`}><Icon name={dark ? 'sun' : 'moon'} /></button>
-          <button className="menu-toggle" onClick={() => setMenuOpen(true)} aria-label="Open menu"><Icon name="menu" /></button>
-        </div>
+        <div className="header-actions"><button className="menu-toggle" onClick={() => setMenuOpen(true)} aria-label="Open menu"><Icon name="menu" /></button></div>
       </header>
 
       <main id="main">
@@ -115,11 +123,12 @@ function App() {
           <Reveal className="hero-lede"><p>I build computer vision, time-series and GenAI systems, and ship them behind FastAPI.</p></Reveal>
           <Reveal className="hero-links"><a href="#work">Selected work <Icon name="arrow" /></a><a href={mailto}>Email me <Icon name="arrow" /></a></Reveal>
           <Reveal className="currently"><span className="mono">CURRENTLY</span><span>{profile.currently.join(' · ')}</span></Reveal>
+          <Suspense fallback={<div className="character-slot" aria-hidden="true" />}><Character3D reaction={reaction} /></Suspense>
         </section>
 
         <section className="section-wrap content-section" id="work">
           <Reveal className="section-intro"><p className="mono section-kicker">01 / WORK</p><h2>Selected work</h2><p>Results first. Open a row for the details.</p></Reveal>
-          <div className="work-list">{profile.projects.map((project, index) => <Reveal className="work-item" key={project.title}><details><summary><span className="work-index mono">{String(index + 1).padStart(2, '0')}</span><span className="work-title">{project.title}</span><span className="work-result">{project.result}</span><span className="work-tags mono">{project.tags.join(' · ')}</span><span className="work-year mono">{project.year}</span><Icon name="arrow" /></summary><div className="work-details"><p>{project.summary}</p><p className="metric">{project.result}</p><span className="mono repo-label">REPO</span><span className="fill-link">{project.repo}</span></div></details></Reveal>)}</div>
+          <div className="work-track">{profile.projects.map((project, index) => <Reveal className="work-panel" key={project.title}><details><summary><span className="work-index mono">{String(index + 1).padStart(2, '0')}</span><span className="work-title">{project.title}</span><span className="work-year mono">{project.year}</span><Icon name="arrow" /></summary><strong className="panel-metric">{project.result}</strong><div className="work-details"><p>{project.summary}</p><span className="mono repo-label">REPO</span><span className="fill-link">{project.repo}</span></div><div className="work-tags mono">{project.tags.join(' · ')}</div></details></Reveal>)}</div>
         </section>
 
         <section className="section-wrap content-section about-grid" id="about">
