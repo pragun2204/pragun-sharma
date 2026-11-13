@@ -75,7 +75,7 @@ function App() {
     return () => window.clearInterval(interval);
   }, []);
 
-  const sections = useMemo(() => ['work', 'about', 'experience', 'contact'], []);
+  const sections = useMemo(() => ['work', 'about', 'skills', 'experience', 'contact'], []);
   const submitForm = async (event) => {
     event.preventDefault();
     const form = event.currentTarget;
@@ -133,18 +133,22 @@ function App() {
         <section className="section-wrap content-section about-grid" id="about">
           <Reveal className="section-intro"><p className="mono section-kicker">02 / ABOUT</p><h2>A little context</h2></Reveal>
           <Reveal className="about-copy"><p>{profile.bio}</p><p className="about-note">I prefer clear systems, honest metrics and work that can be explained in plain language.</p></Reveal>
-          <div className="skills-block"><p className="mono section-kicker">SKILLS</p>{Object.entries(profile.skills).map(([group, skills]) => <Reveal className="skill-group" key={group}><h3>{group}</h3><p>{skills}</p></Reveal>)}</div>
           <div className="education-block"><p className="mono section-kicker">EDUCATION</p>{profile.education.map(([school, degree, details]) => <Reveal className="thin-row" key={school}><strong>{school}</strong><span>{degree}</span><small className="mono">{details}</small></Reveal>)}</div>
         </section>
 
+        <section className="section-wrap content-section skills-section" id="skills">
+          <Reveal className="section-intro"><p className="mono section-kicker">03 / SKILLS</p><h2>Tools I use</h2><p>Plain tools, grouped by the kind of work they support.</p></Reveal>
+          <div className="skills-block">{Object.entries(profile.skills).map(([group, skills]) => <Reveal className="skill-group" key={group}><h3>{group}</h3><p>{skills}</p></Reveal>)}</div>
+        </section>
+
         <section className="section-wrap content-section" id="experience">
-          <Reveal className="section-intro"><p className="mono section-kicker">03 / EXPERIENCE</p><h2>Where I&apos;ve worked</h2></Reveal>
+          <Reveal className="section-intro"><p className="mono section-kicker">04 / EXPERIENCE</p><h2>Where I&apos;ve worked</h2></Reveal>
           <div className="timeline">{profile.experience.map((item) => <Reveal className="timeline-item" key={item.company}><span className="timeline-dot" /><div><p className="mono">{item.dates}</p><h3>{item.company}</h3><strong>{item.role}</strong><p>{item.details}</p></div></Reveal>)}</div>
           <div className="certificates"><p className="mono section-kicker">CERTIFICATES &amp; ACHIEVEMENTS</p>{profile.certificates.map(([date, title]) => <Reveal className="thin-row" key={title}><span className="mono">{date}</span><strong>{title}</strong></Reveal>)}<Reveal className="achievement-line"><span className="mono">ACHIEVEMENT</span><p>Shortlisted for AI/ML internship at IIT Ropar Vichaarnaashala Lab (200+ candidates)</p></Reveal></div>
         </section>
 
         <section className="section-wrap content-section contact-section" id="contact">
-          <Reveal className="section-intro"><p className="mono section-kicker">04 / CONTACT</p><h2>Let&apos;s talk</h2><p>Have a question, a useful problem or a project in mind?</p></Reveal>
+          <Reveal className="section-intro"><p className="mono section-kicker">05 / CONTACT</p><h2>Let&apos;s talk</h2><p>Have a question, a useful problem or a project in mind?</p></Reveal>
           <div className="contact-grid"><div className="contact-links"><a href={mailto}>Email me <Icon name="arrow" /></a><a href={profile.github} target="_blank" rel="noreferrer">GitHub <Icon name="arrow" /></a><a href={profile.linkedin} target="_blank" rel="noreferrer">LinkedIn <Icon name="arrow" /></a></div><form className="contact-form" onSubmit={submitForm}><label>Name<input name="name" required autoComplete="name" /></label><label>Email<input name="email" type="email" required autoComplete="email" /></label><label>Message<textarea name="message" rows="5" required /></label><input className="honeypot" name="website" tabIndex="-1" autoComplete="off" /><button disabled={formState.status === 'sending'} type="submit">{formState.status === 'sending' ? 'Sending...' : 'Send message'} <Icon name="arrow" /></button><p className={`form-message ${formState.status}`}>{formState.message}</p></form></div>
         </section>
       </main>
