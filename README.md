@@ -6,7 +6,7 @@ Static Vite + React portfolio for Pragun Sharma. The frontend does not call the 
 
 - Add the final resume at `public/Pragun_Sharma_Resume.pdf`.
 - Replace each project `[FILL repo URL]` value in `src/data/profile.js` with its own repository URL.
-- Add the optimized 3D poster at `public/assets/pragun_3d_avatar.webp` (or replace it with an optimized WebP under 400 KB).
+- The homepage portrait is `public/assets/pragun-professional.webp`, optimized to 65 KB.
 - Add the Draco-compressed model at `public/models/pragun.glb` (under 1.5 MB, under 30k triangles).
 
 ## Commands

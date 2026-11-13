@@ -1,12 +1,7 @@
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import emailjs from '@emailjs/browser';
 import { profile } from './data/profile';
 
-const Character3D = lazy(() => new Promise((resolve) => {
-  const load = () => import('./components/Character3D.jsx').then(resolve);
-  if ('requestIdleCallback' in window) window.requestIdleCallback(load, { timeout: 1800 });
-  else window.setTimeout(load, 0);
-}));
 const mailParts = ['pragunsharma2204', 'gmail.com'];
 const mailto = `mailto:${mailParts[0]}@${mailParts[1]}`;
 
@@ -101,6 +96,10 @@ function App() {
       setFormState({ status: 'error', message: 'Something went wrong. Please use the email link above.' });
     }
   };
+  const openEmail = (event) => {
+    event.preventDefault();
+    window.location.assign(mailto);
+  };
 
   return (
     <div className="site-shell" ref={mainRef}>
@@ -121,9 +120,9 @@ function App() {
           <Reveal><p className="mono eyebrow">Noida, India — Open to internships</p></Reveal>
           <Reveal className="hero-title"><h1>{profile.name}</h1></Reveal>
           <Reveal className="hero-lede"><p>I build computer vision, time-series and GenAI systems, and ship them behind FastAPI.</p></Reveal>
-          <Reveal className="hero-links"><a href="#work">Selected work <Icon name="arrow" /></a><a href={mailto}>Email me <Icon name="arrow" /></a></Reveal>
+          <Reveal className="hero-links"><a href="#work">Selected work <Icon name="arrow" /></a><a href={mailto} onClick={openEmail}>Email me <Icon name="arrow" /></a></Reveal>
           <Reveal className="currently"><span className="mono">CURRENTLY</span><span>{profile.currently.join(' · ')}</span></Reveal>
-          <Suspense fallback={<div className="character-slot" aria-hidden="true" />}><Character3D reaction={reaction} /></Suspense>
+          <div className={`character-wrap reaction-${reaction}`} aria-hidden="true"><img className="character-poster" src="/assets/pragun-professional.webp" alt="" width="531" height="800" /></div>
         </section>
 
         <section className="section-wrap content-section" id="work">
